@@ -10,9 +10,10 @@
 
 ### bundle install
 
-## update AllCards.json
+## update json
 
-    wget -qO- -O tmp.zip https://mtgjson.com/json/AllCards.json.zip && unzip tmp.zip && rm tmp.zip
+    wget -qO- -O tmp.zip https://mtgjson.com/json/AllSets.json.zip && unzip tmp.zip && rm tmp.zip
+    ruby organize_json.rb
 
 ## run
 

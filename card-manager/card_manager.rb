@@ -1,29 +1,48 @@
 require 'flammarion'
 require 'json'
 
-f = Flammarion::Engraving.new
-f.pane('default').hide
+@f = Flammarion::Engraving.new
+@card = '--'
 
-file = File.read('AllCards.json')
-json_hash = JSON.parse(file)
+def input_list; @f.pane('inputlist', weight: 0.5); end
+def card_details; @f.pane('carddetails', weight: 0.5); end
 
-card_names = json_hash.keys
+input_list
 
-textbox = f.pane('textbox')
-cards = f.pane('cards')
-textbox.style('height', '10%')
-cards.style('height', '90%')
+card_details
+card_details_name = card_details.subpane('carddetailsname')
+card_details_name.puts(@card)
+quantity = card_details.input('quantity')
+set = card_details.input('set')
+card_details.button('add card') do
+  @f.status("added [#{quantity.value}] copies of card [#{@card}] from set [#{set.value}] to collection")
+  @card = '--'
+  card_details_name.replace(@card)
+  quantity.clear
+  set.clear
+end
 
-textbox.input('card name', autoclear: true) do |msg|
-  cards.clear
+@f.orientation = :horizontal
+@f.pane('default').hide
 
-	card_names.each do |card_name|
+all_cards_file = File.read('AllCards.json')
+all_cards_json = JSON.parse(all_cards_file)
+card_names = all_cards_json.keys
+
+
+input_list.input('card name', autoclear: true) do |msg|
+  input_list.subpane('card_buttons').clear
+
+  card_names.each do |card_name|
     if card_name =~ /#{msg['text']}/i
-      cards.button(card_name) do
-        cards.clear
+      input_list.subpane('card_buttons').button(card_name) do
+        input_list.subpane('card_buttons').clear
+        card_details_name.replace(card_name)
+        @card = card_name
       end
     end
   end
 end
+card_buttons = input_list.subpane('card_buttons')
 
-f.wait_until_closed
+@f.wait_until_closed
